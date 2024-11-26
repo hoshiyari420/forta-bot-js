@@ -1,0 +1,9 @@
+{
+    "contracts":{
+    "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9":{
+        "name":"AAVE",
+        "currentImplementationAddress":"0xa606dd423df7dfb65efe14ab66f5fdebf62ff583",
+        "currentCodehash":"0x"
+    }
+    }
+}
