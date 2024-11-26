@@ -99,17 +99,18 @@ const handleTransaction = async (txEvent, provider) => {
   for await (const upgradeEvent of upgradeEvents){
     // get implementation address
     const [newImplementation] = upgradeEvent.args;
-    const currentImplementation = config.contracts[upgradeEvent.address].currentImplementationAddress;
+    const proxyAddress = ethers.getAddress(upgradeEvent.address);
+    const currentImplementation = config.contracts[proxyAddress].currentImplementationAddress;
     // If implementation is same, something is wrong or spam events? ignore it for now 
     if(newImplementation != currentImplementation){
       // Update config cache
-      config.contracts[upgradeEvent.address].currentImplementationAddress = newImplementation;
+      config.contracts[proxyAddress].currentImplementationAddress = newImplementation;
       // Verify the bytecode, remove the false positive where the upgraded bytecode is same.
-      const res = await verifyChange(newImplementation, upgradeEvent.address, provider);
+      const res = await verifyChange(newImplementation, proxyAddress, provider);
       if(res.isDifferent){
         findingsCount++;
-        findings.push(createAlert(config.contracts[upgradeEvent.address].name, upgradeEvent.address, newImplementation, res.newByteCodeHash, res.extraInfo));
-        config.contracts[upgradeEvent.address].currentCodehash = res.newByteCodeHash;
+        findings.push(createAlert(config.contracts[proxyAddress].name, proxyAddress, newImplementation, res.newByteCodeHash, res.extraInfo));
+        config.contracts[proxyAddress].currentCodehash = res.newByteCodeHash;
       }
     }
   }
@@ -173,9 +174,9 @@ async function initialize( config) {
 }
 
 async function main() {
-  let rpcUrl = "https://cloudflare-eth.com/";
+  let rpcUrl = "https://cloudflare-eth.com/"; // http://127.0.0.1:8545
   _provider = await getProvider({ rpcUrl });
-  await initialize( config);
+  await initialize(config);
   scanEthereum({
     rpcUrl,
     handleTransaction
